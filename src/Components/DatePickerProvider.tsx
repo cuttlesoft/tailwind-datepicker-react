@@ -1,4 +1,4 @@
-import React, { createContext, Dispatch, ReactElement, SetStateAction, useState } from "react"
+import React, { createContext, Dispatch, ReactElement, SetStateAction, useEffect, useState } from "react"
 import { IOptions } from "../Options"
 import defaultOptions from "../Options"
 import { getFormattedDate as formatDate } from "../Utils/date"
@@ -16,6 +16,7 @@ interface IDatePickerContext {
 	selectedMonth: number
 	selectedYear: number
 	getFormattedDate: (date: Date | number, formatOptions?: Intl.DateTimeFormatOptions | null | undefined) => string
+	value?: Date
 }
 
 export type Views = "days" | "months" | "years" | "decades"
@@ -33,6 +34,7 @@ export const DatePickerContext = createContext<IDatePickerContext>({
 	selectedMonth: 0,
 	selectedYear: 0,
 	getFormattedDate: () => "",
+	value: null,
 })
 
 interface IDatePickerProviderProps {
@@ -42,16 +44,20 @@ interface IDatePickerProviderProps {
 	show: boolean
 	setShow: (show: boolean) => void
 	selectedDateState?: [Date, (date: Date) => void]
+	value?: Date
 }
 
-const DatePickerProvider = ({ children, options: customOptions, onChange, show, setShow, selectedDateState }: IDatePickerProviderProps) => {
-
+const DatePickerProvider = ({ children, options: customOptions, onChange, show, setShow, selectedDateState, value }: IDatePickerProviderProps) => {
 	const options = { ...defaultOptions, ...customOptions }
 	const [view, setView] = useState<Views>("days")
 	const [selectedDate, setSelectedDate] = selectedDateState || useState<Date>(options?.defaultDate || new Date())
 	const [showSelectedDate, setShowSelectedDate] = useState<boolean>(options?.defaultDate !== null)
 	const selectedMonth = selectedDate.getMonth()
 	const selectedYear = selectedDate.getFullYear()
+
+	useEffect(() => {
+		if (value) setSelectedDate(value)
+	}, [value])
 
 	const changeSelectedDate = (action: "prev" | "next" | "date" | "today", date: Date) => {
 		if (options?.maxDate && date > options.maxDate) return
