@@ -56,6 +56,7 @@ const DatePickerProvider = ({ children, options: customOptions, onChange, show, 
 	const selectedYear = selectedDate.getFullYear()
 
 	useEffect(() => {
+		console.log("value", value)
 		if (value) setSelectedDate(value)
 	}, [value])
 
